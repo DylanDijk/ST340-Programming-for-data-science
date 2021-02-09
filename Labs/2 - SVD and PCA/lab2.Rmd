@@ -1,0 +1,219 @@
+---
+title: "ST340 Lab 2: SVD & PCA"
+date: "2020--21"
+output: pdf_document
+---
+# 1: A simple singular value decomposition
+
+(a) Generate a realization of a $4 \times 5$ Gaussian random matrix $G$.
+
+```{r}
+set.seed(5)
+G = matrix(nrow = 4, ncol = 5)
+
+for(j in 1:5){
+  for(i in 1:4){
+    G[i,j] = rnorm(1)
+  }
+}
+```
+
+
+
+
+(b) Look at `?svd`.
+(c) Set $U$, $d$, and $V$ by using `svd`.
+
+
+```{r}
+svd_G = svd(G, nv = 5)
+print(svd_G)
+
+U = svd_G$u
+d = svd_G$d
+V = svd_G$v
+
+L = diag(svd_G$d)
+L = cbind(L, rep(0,4))  
+
+
+```
+
+\newpage
+
+(d) Check that `G` is equal to `U%*%Sigma%*%t(V)` (to machine precision).
+
+```{r}
+
+SVD_calc = (U)%*%L%*%t(V)
+
+all.equal(G, SVD_calc)     
+```
+
+
+
+(e) Plot the singular values.
+
+```{r}
+plot(x = c(1,2,3,4), y = d, main = "Singular values")
+
+```
+
+
+(f) Compute $G_2$, the 2-rank approximation of $G$, and also compute $||G-G_2||_F$.
+
+
+```{r}
+G_2 = d[1]*(U[,1])%*%t(V[,1]) + d[2]*(U[,2])%*%t(V[,2])
+
+G_G_2_frobenius = sqrt(sum((G-G_2)^2))
+```
+
+
+
+(g) Does the value agree with the theory?
+
+
+```{r}
+all.equal(G_G_2_frobenius, sqrt(sum(d[3:4]^2)))
+```
+
+
+\newpage
+
+# 2: Image compression via the singular value decomposition
+
+```{r}
+load("pictures.rdata")
+source("svd.image.compression.R")
+```
+
+Take a look at `svd.image.compression.R` and understand what the code is doing.Then run `image.compression()` here to see how well we can compress our images.
+\
+\
+I have commented on the r file that creates the functions.
+
+
+```{r}
+
+```
+
+
+
+
+
+# 3: PCA: Crabs
+
+(a) Load the MASS library to access the crabs data.
+    ```{r}
+library(MASS)
+library(factoextra)
+```
+(b) Read `?crabs`.
+
+```{r}
+head(crabs)
+```
+
+
+(c) Read in the FL, RW, CL, CW, and BD measurements.
+    ```{r}
+Crabs <- crabs[,4:8]
+Crabs.class <- factor(paste(crabs[,1],crabs[,2],sep=""))
+# Creating factor that combines the species with the sex
+
+plot(Crabs,col=Crabs.class,pch=20)
+```
+(d) Read `?prcomp` and use it to obtain the principal components of a centred and scaled version of `Crabs`. Call the output of `prcomp` `Crabs.pca`'.
+```{r}
+
+Crabs.pca = prcomp(Crabs, center = T, scale. = T)
+
+```
+
+
+
+
+(e) If you `plot(Crabs.pca)` it visualizes the variances associated with the components.
+    ```{r}
+plot(Crabs.pca)
+```
+(f) Plot PC2 against PC1.
+
+```{r}
+plot(((Crabs.pca)$x)[,'PC1'], ((Crabs.pca)$x)[,'PC2'], col=Crabs.class)
+
+str(Crabs.pca)
+```
+
+
+(g) Read `?pairs` and use it to find a pair of components with good separation of the classes.
+
+```{r}
+pairs(Crabs.pca$x, col=Crabs.class)
+```
+
+
+
+(h) Read `?scale`. Check that you can obtain the principal components by using the singular value decomposition on a centred and scaled version of `Crabs`.
+
+
+
+# 4: PCA: Viruses
+
+This is a dataset on 61 viruses with rod-shaped particles affecting various crops (tobacco, tomato, cucumber and others) described by Fauquet *et al.* (1988) and analysed by Eslava-G$\'o$mez (1989). There are 18 measurements on each virus, the number of amino acid residues per molecule of coat protein.
+```{r}
+load("viruses.rdata")
+```
+
+(a) Obtain the principal components of a centred and scaled version of allviruses.
+    ```{r}
+groups <- rep(0,61)
+groups[1:3] <- 1
+groups[4:9] <- 2
+groups[10:48] <- 3
+groups[49:61] <- 4
+group.names <- c("Hordeviruses","Tobraviruses","Tobamoviruses","furoviruses")
+
+head(allviruses)
+
+allviruses.PCA = prcomp(allviruses, center = T, scale. = T)
+
+```
+If you colour by groups (i.e. `col=groups` in plot) then black is horde, red is tobra, green is tobamo, blue is furo.
+
+(b) Do the principal components show some separation between the viruses?
+
+
+
+```{r}
+
+fviz_eig(allviruses.PCA)
+
+pairs(allviruses.PCA$x[,1:5], col = groups)
+```
+
+
+
+
+(c) The largest group of viruses is the tobamoviruses. Does a principal component analysis suggest there might be subgroups within this group of viruses?
+
+```{r}
+
+
+
+
+tobamoviruses.PCA = prcomp(tobamoviruses, center = T, scale. = T)
+
+fviz_eig(tobamoviruses.PCA)
+
+plot(tobamoviruses.PCA$x[,1], tobamoviruses.PCA$x[,2])
+pairs(tobamoviruses.PCA$x[,1:3])
+
+```
+
+
+From the plot it looks like we have 3 clusters, meaning that there are maybe groups that have different characteristics within the Tobamoviruses group of viruses.
+
+
+
