@@ -54,17 +54,17 @@ for (i in 1:n) {
 ```
 
 (e) Plot the data points coloured by cluster.
-```{r,eval=FALSE}
+```{r}
 plot(xs,col=cols,pch=20)    #plotting generated data points from random MVN samples and colour coded based on distribution used
 ```
 
 (f) Plot the data points without the colours.
-```{r,eval=FALSE}
+```{r}
 plot(xs,pch=20)
 ```
 
 (g) Run the EM algorithm on your generated data. You can try seeing what happens if $K=2$ or $K=4$ as well$\dots$
-```{r,eval=FALSE}
+```{r}
 source("data/em_mixture_gaussians.R")
 print(system.time(out <- em_mix_gaussian(xs,K=3)))
 
@@ -85,38 +85,58 @@ plot(xs,col=my.colors,pch=20)
 Hint: do not initialize any of the cluster `mu`s to be either 0 or 1. (Do you know why?)
 
 Hint: if, by numerical error, any of the parameters $\mu_{kj}$ are greater than 1, the algorithm will most likely fail. To avoid this, you can, after the $M$ step, perform the update
-```{r,eval=FALSE}
+```{r, eval=FALSE}
 mus[which(mus > 1,arr.ind=TRUE)] <- 1 - 1e-15
 ```
 where `mus` is a $K \times p$ matrix.
 
 (b) Test your code.
 ```{r}
-n <- 500; p <- 50
-K.actual <- 2
-mix <- runif(K.actual); mix <- mix / sum(mix)
-mus.actual <- matrix(runif(K.actual*p),K.actual,p)
-zs.actual <- rep(0,n)
+n <- 500; p <- 50                           # n data points where each data point is a vector of length 50. We are assuming each element in these vectors is from a bernoulli dist.
+K.actual <- 2                               # actual number of clusters
 
-xs <- matrix(0,n,p)
+mix <- runif(K.actual)                      # the mixture probabilities w_k. The probabilities for selecting a certain mixture component
+mix <- mix / sum(mix)                       # normalising the probs
+
+mus.actual <- matrix(runif(K.actual*p),K.actual,p)    # matrix 2 rows 50 columns. This is selecting our parameters mu for each vector. Each vector is made up of 50 mus.
+zs.actual <- rep(0,n)                       # actual cluster assignment for each of the 500 data points
+
+xs <- matrix(0,n,p)                         # no we are simulating a dataset
 for (i in 1:n) {
-  cl <- sample(K.actual,size=1,prob=mix)
-  zs.actual[i] <- cl
-  xs[i,] <- (runif(p) < mus.actual[cl,])
+  cl <- sample(K.actual,size=1,prob=mix)    # important to note that: If x has length 1, is numeric and x >= 1, sampling via sample takes place from 1:x.
+                                            # selects cluster 1 or 2
+  
+  zs.actual[i] <- cl                        # zs.actual takes the cluster value
+  
+  xs[i,] <- (runif(p) < mus.actual[cl,])    # this is used to simulate our n data points. A large value in mus.actual is more likely to give a TRUE (1) value as there is a higher prob that the random sample                                                  from the uniform dist will be less than this value.
+                                            
 }
 ```
 
 (c) Calculate the mixture parameters.
-```{r,eval=FALSE}
-source("em_mixture_bernoullis.R")
+```{r}
+source("data/em_mixture_bernoullis.R")
 print(system.time(out <- em_mix_bernoulli(xs,K.actual)))
 ```
 
 (d) Check if the learned parameters are close to the truth.
-```{r,eval=FALSE}
+```{r}
 v1 <- sum(abs(out$mus-mus.actual))
 v2 <- sum(abs(out$mus[2:1,]-mus.actual))
 vm <- min(v1,v2)/p/2
 print(vm)
 if (vm > .3) print("probably not working") else print("might be working")
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
