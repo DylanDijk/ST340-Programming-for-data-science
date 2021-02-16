@@ -116,6 +116,7 @@ for (i in 1:n) {
 (c) Calculate the mixture parameters.
 ```{r}
 source("data/em_mixture_bernoullis.R")
+source('my bernoulli EM function.R')
 print(system.time(out <- em_mix_bernoulli(xs,K.actual)))
 ```
 
@@ -129,6 +130,18 @@ if (vm > .3) print("probably not working") else print("might be working")
 ```
 
 
+```{r}
+# Checking if my algorithm gives the same results
+
+out = my_em_mix_bernoulli(xs,K = K.actual)
+
+v1 <- sum(abs(out$Mu-mus.actual))
+v2 <- sum(abs(out$Mu[2:1,]-mus.actual))
+vm <- min(v1,v2)/p/2
+print(vm)
+if (vm > .3) print("probably not working") else print("might be working")
+
+```
 
 
 
