@@ -24,6 +24,30 @@ prob_bernoulli = function(x, mu){
 
 
 
+# This function calculates the log-likelihood of the model.
+
+likelihood_calc = function(xs, weights, param, K){
+  sum_k = vector(length=K)
+  sum_n = vector(length=nrow(xs))
+  
+  for(i in 1:nrow(xs)){
+    for(k in 1:K){
+      sum_k[k] = (weights[k])*prob_bernoulli(x = xs[i,], mu = param[k,])
+    }
+    sum_n[i] = log(sum(sum_k))
+  }
+  return((sum(sum_n)))
+}
+
+
+
+
+
+
+
+
+
+
 
 
 #### EM bernoulli algorithm ####
@@ -41,8 +65,14 @@ my_em_mix_bernoulli = function(xs, K, numit = 50){
 
 iterations = 1 
 
-while(iterations < (numit + 1)){
+ll = 0
+converged  = FALSE
 
+
+while((iterations < (numit + 1)) && !converged ){
+
+ 
+  
 denom_to_sum = matrix(0, nrow = n, ncol = K)
 
     
@@ -83,15 +113,20 @@ for(k in 1:K){
 }  
 
   
-iterations = iterations + 1     
-  
+ll.old = ll 
+
+ll = likelihood_calc(xs = xs, weights = weights, param = mus, K = K)
+print(paste(iterations, "log-likelihood = ", ll))  
+
+if(abs(ll-ll.old) < 1e-5) converged = TRUE
+
+iterations = iterations + 1  
 }  
   
 return(list(W = weights,Mu =  mus, Gammas = gamma))
   
 }  
   
-
 
 
 
