@@ -85,6 +85,7 @@ AIC_BIC = function(formula, data){
 
 ```{r}
 AIC_BIC(formula = LungCancerRate ~ CigSalesRate + CigYouthRate + CigAdultRate, data = LungCancer)
+LOOCV(formula = LungCancerRate ~ CigSalesRate + CigYouthRate + CigAdultRate, data = LungCancer)
 ```
 
 
@@ -133,20 +134,76 @@ Check each of your answers by simulation.
 (a) Write a function to calculate the $\ell_1$ distances between pairs of row vectors in two matrices:
 ```{r eval=FALSE}
 distances.l1 <- function(X,W) {
-  # YOUR CODE HERE
+  
+  xn = nrow(X); wn = nrow(W)
+  
+  l1.dist = matrix(nrow = xn, ncol = wn)
+
+  rownames(l1.dist) = paste0('X',1:xn)
+  colnames(l1.dist) = paste0('W',1:wn)
+  
+  for(i in 1:xn){
+    for(j in 1:wn){
+      
+      l1.dist[i,j] = sum(abs(X[i,] - W[j,]))
+      
+    }
+  }
+  
+  return(l1.dist)
 }
+
+
 ```
 
 (b) Write a similar function to calculate a matrix of pairwise $\ell_2$ distances:
 ```{r eval=FALSE}
 distances.l2 <- function(X,W) {
-  # YOUR CODE HERE
+
+    
+  xn = nrow(X); wn = nrow(W)
+  
+  l2.dist = matrix(nrow = xn, ncol = wn)
+
+  rownames(l2.dist) = paste0('X',1:xn)
+  colnames(l2.dist) = paste0('W',1:wn)
+  
+  for(i in 1:xn){
+    for(j in 1:wn){
+      
+      l2.dist[i,j] = sqrt(sum((X[i,] - W[j,])^2))
+      
+    }
+  }
+  
+  return(l2.dist)
+  
+  
+  
+  
 }
 ```
 
 (c) Write a similar function to calculate the Mahalanobis distance between the row vectors, given a $D \times D$ covariance matrix $S$:
 ```{r eval=FALSE}
 distances.maha <- function(X,W,S) {
-  # YOUR CODE HERE
+
+xn = nrow(X); wn = nrow(W)
+  
+  mahal.dist = matrix(nrow = xn, ncol = wn)
+
+  rownames(mahal.dist) = paste0('X',1:xn)
+  colnames(mahal.dist) = paste0('W',1:wn)
+  
+  for(i in 1:xn){
+    for(j in 1:wn){
+      
+      mahal.dist[i,j] = sqrt(t(X[i,] - W[j,])%*%(solve(S))%*%((X[i,] - W[j,])))
+      
+    }
+  }
+  
+  return(mahal.dist)
+  
 }
 ```
