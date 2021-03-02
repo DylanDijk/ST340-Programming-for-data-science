@@ -83,6 +83,8 @@ plot(xs,col=my.colors,pch=20)
 (a) Create a file called `em_mixture_bernoullis.R` which contains a function called `em_mix_bernoulli` that is the analogue of `em_mix_gaussian`. You could use `em_mixture_gaussians.R` as a template.
 
 Hint: do not initialize any of the cluster `mu`s to be either 0 or 1. (Do you know why?)
+\
+As otherwise if for example $\mu_{kj}$ is equal to one and then $x_{ij}$ is zero we will have zero probability for $p(\boldsymbol{x}_i|\boldsymbol{\mu}_{k})$. Which is undefined when taking the log.
 
 Hint: if, by numerical error, any of the parameters $\mu_{kj}$ are greater than 1, the algorithm will most likely fail. To avoid this, you can, after the $M$ step, perform the update
 ```{r, eval=FALSE}

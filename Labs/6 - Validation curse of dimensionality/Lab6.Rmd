@@ -33,20 +33,19 @@ LOOCV = function(formula, data){
   CV_values = vector(length = n)
   
   for(i in 1:n){
-    data = data[-i,]
-    model = lm(formula, data = data)
-    CV_values[i] = sum((model$residuals)^2)
+    exlude = data[i,]
+    data2 = data[-i,]
+    model = lm(formula, data = data2)
+    CV_values[i] = ((data[i,colnames(get_all_vars(formula, data = data2))[1]]) - predict(model, data[i,colnames(get_all_vars(formula, data = data2))[-1]]))^2
   }
   
-  return(mean(CV_values))
-  
+  return(sum(CV_values))
 }
 ```
 
 
 ```{r}
 LOOCV(data = LungCancer, formula = LungCancerRate ~ CigSalesRate + CigYouthRate + CigAdultRate)
-
 ```
 
 
