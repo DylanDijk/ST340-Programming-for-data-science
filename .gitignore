@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 *.Rproj
+example of saving algorithm output.R
 
 # History files
 .Rhistory
